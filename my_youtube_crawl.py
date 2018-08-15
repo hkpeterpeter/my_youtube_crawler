@@ -2,25 +2,13 @@ from pytube import YouTube
 from youtube_transcript_api import YouTubeTranscriptApi
 import os, os.path, string
 
-
 def format_filename(s):
-    """Take a string and return a valid filename constructed from the string.
-Uses a whitelist approach: any characters not present in valid_chars are
-removed. Also spaces are replaced with underscores.
-
-Note: this method may produce invalid filenames such as ``, `.` or `..`
-When I use this method I prepend a date string like '2009_01_15_19_46_32_'
-and append a file extension like '.txt', so I avoid the potential of using
-an invalid filename.
-
-Source: https://gist.github.com/seanh/93666
-
+    """ Source: https://gist.github.com/seanh/93666
 """
     valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
     filename = ''.join(c for c in s if c in valid_chars)
     filename = filename.replace(' ', '_')  # I don't like spaces in filenames.
     return filename
-
 
 def crawlYouTube(url):
 
@@ -31,7 +19,6 @@ def crawlYouTube(url):
 
     dirName = format_filename(yt.title)
 
-
     # Make a directory for the given title
     if not os.path.exists(dirName):
         os.mkdir(dirName)
@@ -39,15 +26,16 @@ def crawlYouTube(url):
     # Apply operations in the sub-folder
     os.chdir(dirName)
 
-
     script_fname = format_filename("script.csv")
     if not os.path.exists(script_fname):
         # Grab the youtube transcript
         transcript = YouTubeTranscriptApi.get_transcript(yt.video_id)
+
         # Prepare the csv content
         content = "start,duration,text\n"
         for item in transcript:
             content += str(item["start"]) + "," + str(item["duration"]) + "," + item["text"] + "\n"
+
         # Write the csv content
         text_file = open(script_fname, "w")
         text_file.write(content)
@@ -59,13 +47,12 @@ def crawlYouTube(url):
 
     source_fname = format_filename("source.csv")
     if not os.path.exists(source_fname):
-
         content = ""
         content += "url,%s\n" % url
         content += "video_id,%s\n" % yt.video_id
         content += "title,%s\n" % yt.title
         content += "thumbnail_url,%s\n" % yt.thumbnail_url
-        # print(content)
+
         # Write the csv content
         text_file = open(source_fname, "w")
         text_file.write(content)
@@ -73,7 +60,6 @@ def crawlYouTube(url):
         print("%s downloaded" % source_fname)
     else:
         print("%s exists. Skip downloading." % source_fname)
-
 
 
     # Download the mp4
@@ -85,14 +71,13 @@ def crawlYouTube(url):
     else:
         print("%s exists. Skip downloading." % mp4_name)
 
-
     os.chdir("..")
 
 
 if __name__ == "__main__":
     batchMode = True
 
-    # non-batch mode
+    # non-batch mode: testing
     url = "https://www.youtube.com/watch?v=S52rxZG-zi0"
 
     # batch mode
@@ -111,11 +96,6 @@ if __name__ == "__main__":
     if batchMode == False:
         crawlYouTube(url)
     else:
-
             for url in content:
-                #print(url)
                 crawlYouTube(url)
     os.chdir("..")
-
-
-
